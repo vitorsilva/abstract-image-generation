@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abstract Image Generator</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.2/p5.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Abstract Image Generator</h1>
+            <p>Transform your blog content into beautiful abstract images for social media</p>
+        </header>
+
+        <main>
+            <section class="input-section">
+                <h2>Your Content</h2>
+                <div class="input-options">
+                    <button id="pasteBtn" class="active">Paste Text</button>
+                    <button id="uploadBtn">Upload File</button>
+                </div>
+
+                <textarea id="contentInput" placeholder="Paste your blog post content here..."></textarea>
+
+                <input type="file" id="fileInput" accept=".txt,.html,.htm" style="display:none">
+
+                <button id="generateBtn" class="generate-btn">Generate Images</button>
+            </section>
+
+            <section class="output-section" id="outputSection" style="display:none">
+                <h2>Generated Images</h2>
+
+                <div class="metrics-display" id="metricsDisplay"></div>
+
+                <div class="preview-grid">
+                    <div class="preview-item">
+                        <h3>Landscape (1200×628)</h3>
+                        <div id="canvas-landscape" class="canvas-container"></div>
+                        <button class="download-btn" data-format="landscape">Download</button>
+                    </div>
+
+                    <div class="preview-item">
+                        <h3>Square (1200×1200)</h3>
+                        <div id="canvas-square" class="canvas-container"></div>
+                        <button class="download-btn" data-format="square">Download</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="src/contentAnalyzer.js"></script>
+    <script src="src/seedGenerator.js"></script>
+    <script src="src/visualGenerator.js"></script>
+    <script src="src/app.js"></script>
+</body>
+</html>
