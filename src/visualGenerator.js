@@ -125,7 +125,9 @@ class VisualGenerator {
         const numLayers = Math.max(3, Math.floor(this.params.layers));
         const numFlows = Math.floor(5 + this.params.density * 10);
         const noiseScale = 0.005 / (this.params.smoothness + 0.1);
-        const curveComplexity = Math.floor(8 + this.params.complexity * 12);
+
+        // Use paragraph count for shape vertices (already calculated in params)
+        const shapeVertices = this.params.shapeVertices || 8;
 
         for (let layer = 0; layer < numLayers; layer++) {
             const alpha = 30 + (layer * 10);
@@ -141,7 +143,7 @@ class VisualGenerator {
                     p.random(this.width),
                     p.random(this.height),
                     50 + p.random(150 * this.params.complexity),
-                    curveComplexity,
+                    shapeVertices,
                     noiseScale,
                     flow + layer * 100
                 );
@@ -183,7 +185,7 @@ class VisualGenerator {
     }
 
     /**
-     * Draw a flowing curve using bezier curves and noise
+     * Draw a flowing curve from top of image using bezier curves and noise
      */
     drawFlowingCurve(p, noiseScale, offset) {
         p.beginShape();
@@ -193,8 +195,11 @@ class VisualGenerator {
             const t = i / steps;
             const x = t * this.width;
 
+            // Use noise to determine how far down the curve extends from the top
+            // Base depth varies, but curves start from top
             const noiseValue = p.noise(t * 5 + offset, offset * noiseScale);
-            const y = p.map(noiseValue, 0, 1, this.height * 0.2, this.height * 0.8);
+            const baseDepth = p.map(offset % 5, 0, 5, 0.1, 0.6); // Different curves reach different depths
+            const y = p.map(noiseValue, 0, 1, 0, this.height * baseDepth);
 
             if (i === 0) {
                 p.vertex(x, y);

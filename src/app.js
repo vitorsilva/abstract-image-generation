@@ -135,6 +135,10 @@ class App {
                 <div class="metric-label">Words</div>
             </div>
             <div class="metric-item">
+                <div class="metric-value">${this.metrics.paragraphCount}</div>
+                <div class="metric-label">Paragraphs</div>
+            </div>
+            <div class="metric-item">
                 <div class="metric-value">${this.metrics.characters}</div>
                 <div class="metric-label">Characters</div>
             </div>

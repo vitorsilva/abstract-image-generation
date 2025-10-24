@@ -25,7 +25,7 @@ class SeedGenerator {
      * Generate visual parameters based on content metrics
      */
     generateVisualParams() {
-        const { wordCount, characters, avgWordLength, readingTime } = this.metrics;
+        const { wordCount, characters, avgWordLength, readingTime, paragraphCount } = this.metrics;
 
         // Map metrics to visual parameters
         // These will be used to control the generative art
@@ -42,6 +42,10 @@ class SeedGenerator {
         // Layers: reading time determines depth
         const layers = Math.min(readingTime, 10);
 
+        // Shape vertices: paragraph count determines polygon complexity
+        // Range: 3 (triangle) to 20 (complex polygon)
+        const shapeVertices = Math.min(Math.max(paragraphCount, 3), 20);
+
         // Color palette index (based on content hash)
         const contentHash = this.hashContent(this.metrics.cleanContent);
         const paletteIndex = contentHash % 10; // 10 different palettes
@@ -52,6 +56,7 @@ class SeedGenerator {
             complexity,
             smoothness,
             layers,
+            shapeVertices,
             paletteIndex
         };
     }

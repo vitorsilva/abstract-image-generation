@@ -1,7 +1,7 @@
 # Project Status - Abstract Image Generator
 
 **Last Updated:** October 24, 2025
-**Current Phase:** MVP Complete - Fixed Image Stretching Issue
+**Current Phase:** MVP Complete - Enhanced with Paragraph-Based Shapes
 
 ## Project Vision
 
@@ -12,12 +12,14 @@ Create a tool that generates abstract images from blog post content for social m
 ### Phase 1: Core Engine ✅
 - ✅ Content analyzer module (`src/contentAnalyzer.js`)
   - Cleans HTML and extracts plain text
-  - Calculates metrics: word count, character count, average word length, reading time
+  - Calculates metrics: word count, character count, average word length, reading time, **paragraph count**
+  - Counts paragraphs from HTML `<p>` tags or double line breaks
   - Creates content hash for deterministic seeding
 
 - ✅ Seed generator module (`src/seedGenerator.js`)
   - Generates deterministic seed from content metrics
-  - Maps metrics to visual parameters (density, complexity, smoothness, layers, paletteIndex)
+  - Maps metrics to visual parameters (density, complexity, smoothness, layers, **shapeVertices**, paletteIndex)
+  - **NEW:** Paragraph count → shape vertices (3-20 edges per polygon)
 
 - ✅ Visual generator module (`src/visualGenerator.js`)
   - p5.js-based generative art engine
@@ -26,6 +28,8 @@ Create a tool that generates abstract images from blog post content for social m
   - Gradient backgrounds
   - Layered composition with alpha transparency
   - Subtle noise texture overlay
+  - **NEW:** Shapes use paragraph-based vertex count (more paragraphs = more complex polygons)
+  - **NEW:** Flowing curves start from top of image and cascade downward
 
 ### Phase 2: Web Interface ✅
 - ✅ HTML interface (`index.html`)
@@ -86,7 +90,8 @@ Create a tool that generates abstract images from blog post content for social m
    - Manual controls could be added in v2
 
 6. **Content Analysis:** Simple metrics for v1
-   - Word count, character count, average word length, reading time
+   - Word count, character count, average word length, reading time, **paragraph count**
+   - Paragraph count determines shape complexity (3-20 vertices)
    - Semantic/NLP analysis planned for v2
 
 7. **Multi-format Generation:** Master image + crop approach (not separate renders)
@@ -94,6 +99,11 @@ Create a tool that generates abstract images from blog post content for social m
    - Crop from top-left to create different formats
    - Prevents stretching/distortion of visual elements
    - Ensures consistent composition across formats
+
+8. **Visual Flow:** Curves cascade from top of image
+   - Flowing lines start at top (y=0) and extend downward
+   - Different curves reach different depths based on noise
+   - Creates a cascading, waterfall-like aesthetic
 
 ## What Needs to Be Done Next
 
