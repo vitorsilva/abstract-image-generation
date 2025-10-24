@@ -135,16 +135,31 @@ class VisualGenerator {
                 p.fill(color); // Opaque shapes
                 p.noStroke();
 
-                // Create organic blob using noise
-                this.drawOrganicBlob(
-                    p,
-                    p.random(this.width),
-                    p.random(this.height),
-                    50 + p.random(150 * this.params.complexity),
-                    shapeVertices,
-                    noiseScale,
-                    flow + layer * 100
-                );
+                const x = p.random(this.width);
+                const y = p.random(this.height);
+                const size = 50 + p.random(150 * this.params.complexity);
+                const offset = flow + layer * 100;
+
+                // Select shape type based on smoothness and deterministic randomness
+                // Different avgWordLength values produce different shape distributions
+                const shapeSelector = (offset * 37 + this.params.smoothness * 100) % 100;
+
+                if (shapeSelector < 20) {
+                    // Circles (20%)
+                    this.drawCircle(p, x, y, size);
+                } else if (shapeSelector < 35) {
+                    // Stars (15%)
+                    this.drawStar(p, x, y, size, shapeVertices);
+                } else if (shapeSelector < 50) {
+                    // Rectangles (15%)
+                    this.drawRectangle(p, x, y, size, offset);
+                } else if (shapeSelector < 70) {
+                    // Regular polygons (20%)
+                    this.drawRegularPolygon(p, x, y, size, shapeVertices);
+                } else {
+                    // Organic blobs (30%)
+                    this.drawOrganicBlob(p, x, y, size, shapeVertices, noiseScale, offset);
+                }
             }
 
             // Draw flowing curves
@@ -157,6 +172,63 @@ class VisualGenerator {
                 this.drawFlowingCurve(p, noiseScale, i + layer * 10);
             }
         }
+    }
+
+    /**
+     * Draw a circle
+     */
+    drawCircle(p, x, y, radius) {
+        p.ellipse(x, y, radius * 2, radius * 2);
+    }
+
+    /**
+     * Draw a star
+     */
+    drawStar(p, x, y, radius, points) {
+        const angle = p.TWO_PI / points;
+        const halfAngle = angle / 2;
+
+        p.beginShape();
+        for (let a = -p.PI / 2; a < p.TWO_PI - p.PI / 2; a += angle) {
+            // Outer point
+            let sx = x + p.cos(a) * radius;
+            let sy = y + p.sin(a) * radius;
+            p.vertex(sx, sy);
+
+            // Inner point
+            sx = x + p.cos(a + halfAngle) * (radius * 0.5);
+            sy = y + p.sin(a + halfAngle) * (radius * 0.5);
+            p.vertex(sx, sy);
+        }
+        p.endShape(p.CLOSE);
+    }
+
+    /**
+     * Draw a rectangle with rotation
+     */
+    drawRectangle(p, x, y, size, offset) {
+        p.push();
+        p.translate(x, y);
+        // Rotation based on offset for variety
+        p.rotate(offset * 0.1);
+        const width = size * (0.8 + (offset % 10) / 20);
+        const height = size * (0.8 + ((offset * 3) % 10) / 20);
+        p.rectMode(p.CENTER);
+        p.rect(0, 0, width, height);
+        p.pop();
+    }
+
+    /**
+     * Draw a regular polygon (no noise)
+     */
+    drawRegularPolygon(p, x, y, radius, points) {
+        p.beginShape();
+        for (let angle = 0; angle < p.TWO_PI; angle += p.TWO_PI / points) {
+            const vx = x + p.cos(angle) * radius;
+            const vy = y + p.sin(angle) * radius;
+            p.vertex(vx, vy);
+        }
+        p.endShape(p.CLOSE);
     }
 
     /**
