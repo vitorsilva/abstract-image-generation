@@ -50,6 +50,7 @@ The application follows a modular architecture with clear separation of concerns
    - Orchestrates the entire workflow
    - Manages UI interactions
    - Handles p5.js sketch lifecycle (creation, cleanup)
+   - Implements multi-format generation via master image + crop
    - Implements download functionality
 
 ### Data Flow
@@ -61,7 +62,11 @@ ContentAnalyzer → metrics {wordCount, characters, avgWordLength, readingTime}
     ↓
 SeedGenerator → visualParams {seed, density, complexity, smoothness, layers, paletteIndex}
     ↓
-VisualGenerator → p5.js sketch → Canvas rendering
+VisualGenerator → Master p5.js canvas (1200×1200)
+    ↓
+Canvas cropping → Multiple formats:
+    - Landscape: 1200×628 (crop top-left)
+    - Square: 1200×1200 (full image)
     ↓
 Download as PNG
 ```
@@ -76,6 +81,8 @@ Download as PNG
 
 **p5.js Instance Mode**: Uses p5.js instance mode (not global mode) to support multiple canvases on the same page without conflicts.
 
+**Master Image + Crop**: Generates one master canvas at 1200×1200px, then crops to different formats. This prevents visual distortion/stretching that would occur if each format was rendered independently at different aspect ratios. Landscape format shows the top 628px of the composition.
+
 ### File References
 
 - Color palettes defined: `src/visualGenerator.js:21-85`
@@ -83,6 +90,8 @@ Download as PNG
 - Visual parameter mapping: `src/seedGenerator.js:23-51`
 - Organic blob rendering: `src/visualGenerator.js:159-181`
 - Noise-based curves: `src/visualGenerator.js:186-203`
+- Master image generation: `src/app.js:155-173`
+- Canvas cropping logic: `src/app.js:203-227`
 
 ## Future Development (v2)
 
