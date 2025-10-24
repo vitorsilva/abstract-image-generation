@@ -130,11 +130,9 @@ class VisualGenerator {
         const shapeVertices = this.params.shapeVertices || 8;
 
         for (let layer = 0; layer < numLayers; layer++) {
-            const alpha = 30 + (layer * 10);
-
             for (let flow = 0; flow < numFlows; flow++) {
                 const color = accentColors[flow % accentColors.length];
-                p.fill(color + p.hex(alpha, 2));
+                p.fill(color); // Opaque shapes
                 p.noStroke();
 
                 // Create organic blob using noise
@@ -152,7 +150,7 @@ class VisualGenerator {
             // Draw flowing curves
             for (let i = 0; i < 3; i++) {
                 const color = accentColors[i % accentColors.length];
-                p.stroke(color + p.hex(20, 2));
+                p.stroke(color); // Opaque curves
                 p.strokeWeight(2 + this.params.complexity * 3);
                 p.noFill();
 
