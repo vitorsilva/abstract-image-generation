@@ -20,11 +20,19 @@
                 <div class="input-options">
                     <button id="pasteBtn" class="active">Paste Text</button>
                     <button id="uploadBtn">Upload File</button>
+                    <button id="wordpressBtn">Load from WordPress</button>
                 </div>
 
                 <textarea id="contentInput" placeholder="Paste your blog post content here..."></textarea>
 
                 <input type="file" id="fileInput" accept=".txt,.html,.htm" style="display:none">
+
+                <div id="wordpressInput" class="wordpress-input" style="display:none">
+                    <label for="wordpressUrl">WordPress Post URL:</label>
+                    <input type="text" id="wordpressUrl" placeholder="https://osmeusapontamentos.com/2024/12/25/post-slug/">
+                    <button id="loadWordpressBtn" class="load-btn">Load Content</button>
+                    <div id="wordpressStatus" class="status-message"></div>
+                </div>
 
                 <div class="parameters-section">
                     <h3>Line Thickness Parameters</h3>
@@ -83,9 +91,9 @@
         </main>
     </div>
 
-    <script src="src/contentAnalyzer.js?v=6"></script>
-    <script src="src/seedGenerator.js?v=6"></script>
-    <script src="src/visualGenerator.js?v=6"></script>
-    <script src="src/app.js?v=6"></script>
+    <script src="src/core/contentAnalyzer.js?v=8"></script>
+    <script src="src/core/seedGenerator.js?v=8"></script>
+    <script src="src/core/visualGenerator.js?v=8"></script>
+    <script src="src/web/app.js?v=8"></script>
 </body>
 </html>

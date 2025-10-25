@@ -195,6 +195,88 @@ h2 {
     margin-top: 20px;
 }
 
+.wordpress-input {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f5f7ff;
+    border: 2px solid #667eea;
+    border-radius: 8px;
+}
+
+.wordpress-input label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 500;
+    color: #555;
+}
+
+.wordpress-input input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 1em;
+    margin-bottom: 10px;
+    transition: border-color 0.3s ease;
+}
+
+.wordpress-input input[type="text"]:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.load-btn {
+    padding: 10px 30px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.load-btn:hover {
+    background: #5568d3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.load-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.status-message {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    display: none;
+}
+
+.status-message.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    display: block;
+}
+
+.status-message.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    display: block;
+}
+
+.status-message.loading {
+    background: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+    display: block;
+}
+
 .generate-btn {
     margin-top: 20px;
     padding: 15px 40px;

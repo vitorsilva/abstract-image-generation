@@ -26,9 +26,25 @@ class App {
             this.switchInputMode('upload');
         });
 
+        document.getElementById('wordpressBtn').addEventListener('click', () => {
+            this.switchInputMode('wordpress');
+        });
+
         // File input
         document.getElementById('fileInput').addEventListener('change', (e) => {
             this.handleFileUpload(e);
+        });
+
+        // WordPress load button
+        document.getElementById('loadWordpressBtn').addEventListener('click', () => {
+            this.loadFromWordPress();
+        });
+
+        // Allow Enter key in WordPress URL input
+        document.getElementById('wordpressUrl').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.loadFromWordPress();
+            }
         });
 
         // Generate button
@@ -45,25 +61,37 @@ class App {
     }
 
     /**
-     * Switch between paste and upload input modes
+     * Switch between paste, upload, and wordpress input modes
      */
     switchInputMode(mode) {
         const pasteBtn = document.getElementById('pasteBtn');
         const uploadBtn = document.getElementById('uploadBtn');
+        const wordpressBtn = document.getElementById('wordpressBtn');
         const textArea = document.getElementById('contentInput');
         const fileInput = document.getElementById('fileInput');
+        const wordpressInput = document.getElementById('wordpressInput');
+
+        // Reset all buttons
+        pasteBtn.classList.remove('active');
+        uploadBtn.classList.remove('active');
+        wordpressBtn.classList.remove('active');
+
+        // Hide all inputs
+        fileInput.style.display = 'none';
+        wordpressInput.style.display = 'none';
 
         if (mode === 'paste') {
             pasteBtn.classList.add('active');
-            uploadBtn.classList.remove('active');
             textArea.style.display = 'block';
-            fileInput.style.display = 'none';
-        } else {
+        } else if (mode === 'upload') {
             uploadBtn.classList.add('active');
-            pasteBtn.classList.remove('active');
             textArea.style.display = 'none';
             fileInput.style.display = 'block';
             fileInput.click();
+        } else if (mode === 'wordpress') {
+            wordpressBtn.classList.add('active');
+            textArea.style.display = 'block';
+            wordpressInput.style.display = 'block';
         }
     }
 
@@ -82,6 +110,141 @@ class App {
             console.error('Error reading file:', error);
             alert('Error reading file. Please try again.');
         }
+    }
+
+    /**
+     * Load content from WordPress post URL
+     */
+    async loadFromWordPress() {
+        const urlInput = document.getElementById('wordpressUrl');
+        const statusDiv = document.getElementById('wordpressStatus');
+        const loadBtn = document.getElementById('loadWordpressBtn');
+        const url = urlInput.value.trim();
+
+        // Clear previous status
+        statusDiv.className = 'status-message';
+        statusDiv.textContent = '';
+
+        if (!url) {
+            statusDiv.className = 'status-message error';
+            statusDiv.textContent = 'Please enter a WordPress post URL';
+            return;
+        }
+
+        try {
+            // Extract post ID or slug from URL
+            const postInfo = this.parseWordPressUrl(url);
+
+            // Show loading state
+            statusDiv.className = 'status-message loading';
+            statusDiv.textContent = 'Loading content from WordPress...';
+            loadBtn.disabled = true;
+
+            let post;
+
+            // If identifier is numeric, fetch by ID directly
+            if (postInfo.isId) {
+                const apiUrl = `${postInfo.siteUrl}/wp-json/wp/v2/posts/${postInfo.identifier}`;
+                const response = await fetch(apiUrl);
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch post: ${response.status} ${response.statusText}`);
+                }
+
+                post = await response.json();
+            } else {
+                // For slugs, use query parameter
+                const apiUrl = `${postInfo.siteUrl}/wp-json/wp/v2/posts?slug=${postInfo.identifier}`;
+                const response = await fetch(apiUrl);
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch post: ${response.status} ${response.statusText}`);
+                }
+
+                const posts = await response.json();
+
+                if (!posts || posts.length === 0) {
+                    throw new Error('Post not found');
+                }
+
+                post = posts[0]; // Get first match
+            }
+
+            // Extract and clean content
+            const content = this.stripHtml(post.content.rendered);
+            const title = this.stripHtml(post.title.rendered);
+
+            // Populate textarea
+            document.getElementById('contentInput').value = content;
+
+            // Show success
+            statusDiv.className = 'status-message success';
+            statusDiv.textContent = `✓ Loaded: "${title}" (${content.length} characters)`;
+
+        } catch (error) {
+            console.error('WordPress load error:', error);
+            statusDiv.className = 'status-message error';
+            statusDiv.textContent = `Error: ${error.message}`;
+        } finally {
+            loadBtn.disabled = false;
+        }
+    }
+
+    /**
+     * Parse WordPress URL to extract site URL and post identifier
+     */
+    parseWordPressUrl(url) {
+        try {
+            const urlObj = new URL(url);
+            const siteUrl = `${urlObj.protocol}//${urlObj.host}`;
+
+            // Try to extract post ID from URL patterns
+            // Pattern 1: ?p=123
+            const pMatch = url.match(/[?&]p=(\d+)/);
+            if (pMatch) {
+                return { siteUrl, identifier: pMatch[1], isId: true };
+            }
+
+            // Pattern 2: Extract from path
+            const pathParts = urlObj.pathname.split('/').filter(p => p);
+
+            // Remove common WordPress path segments
+            const filteredParts = pathParts.filter(part =>
+                part !== 'index.php' &&
+                !part.match(/^\d{4}$/) && // Year (2024)
+                !part.match(/^\d{2}$/)    // Month/Day (10, 20)
+            );
+
+            // Get the last meaningful part (should be the slug)
+            const lastPart = filteredParts[filteredParts.length - 1];
+
+            // Check if it's a numeric ID
+            if (/^\d+$/.test(lastPart)) {
+                return { siteUrl, identifier: lastPart, isId: true };
+            }
+
+            // Otherwise it's a slug
+            return { siteUrl, identifier: lastPart, isId: false };
+
+        } catch (error) {
+            throw new Error('Invalid URL format');
+        }
+    }
+
+    /**
+     * Strip HTML tags from content
+     */
+    stripHtml(html) {
+        const temp = document.createElement('div');
+        temp.innerHTML = html;
+
+        // Get text content
+        let text = temp.textContent || temp.innerText || '';
+
+        // Clean up whitespace
+        text = text.replace(/\s+/g, ' ').trim();
+
+        return text;
     }
 
     /**
