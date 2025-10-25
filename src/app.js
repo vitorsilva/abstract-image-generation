@@ -190,13 +190,17 @@ class App {
     createCroppedVersions() {
         const masterCanvas = this.sketches.master.canvas;
 
-        // Create landscape version (1200×628) - crop from top-left
+        // Get selected crop mode
+        const cropMode = document.querySelector('input[name="cropMode"]:checked').value;
+
+        // Create landscape version (1200×628)
         this.createCroppedCanvas(
             masterCanvas,
             'canvas-landscape',
             1200,
             628,
-            'landscape'
+            'landscape',
+            cropMode
         );
 
         // Create square version (1200×1200) - use full image
@@ -205,14 +209,15 @@ class App {
             'canvas-square',
             1200,
             1200,
-            'square'
+            'square',
+            cropMode
         );
     }
 
     /**
      * Create a cropped canvas from master image
      */
-    createCroppedCanvas(sourceCanvas, containerId, width, height, formatName) {
+    createCroppedCanvas(sourceCanvas, containerId, width, height, formatName, cropMode = 'direct') {
         const container = document.getElementById(containerId);
         container.innerHTML = ''; // Clear previous canvas
 
@@ -221,13 +226,19 @@ class App {
         croppedCanvas.width = width;
         croppedCanvas.height = height;
 
-        // Get context and draw cropped portion from master
         const ctx = croppedCanvas.getContext('2d');
-        ctx.drawImage(
-            sourceCanvas,
-            0, 0, width, height,  // Source rectangle (crop from top-left)
-            0, 0, width, height   // Destination rectangle
-        );
+
+        if (cropMode === 'resize') {
+            // Resize + Crop mode: Scale to fit target aspect ratio, then crop
+            this.resizeAndCrop(ctx, sourceCanvas, width, height);
+        } else {
+            // Direct Crop mode: Crop directly from top-left (faster, current behavior)
+            ctx.drawImage(
+                sourceCanvas,
+                0, 0, width, height,  // Source rectangle (crop from top-left)
+                0, 0, width, height   // Destination rectangle
+            );
+        }
 
         // Add to container
         container.appendChild(croppedCanvas);
@@ -236,6 +247,61 @@ class App {
         this.sketches[formatName] = {
             canvas: croppedCanvas
         };
+    }
+
+    /**
+     * Resize and crop image to fit target dimensions
+     * Scales the source to cover the target while maintaining aspect ratio,
+     * then crops from center
+     */
+    resizeAndCrop(ctx, sourceCanvas, targetWidth, targetHeight) {
+        const sourceWidth = sourceCanvas.width;
+        const sourceHeight = sourceCanvas.height;
+
+        // Calculate aspect ratios
+        const sourceAspect = sourceWidth / sourceHeight;
+        const targetAspect = targetWidth / targetHeight;
+
+        let scaleWidth, scaleHeight;
+        let sourceX = 0, sourceY = 0;
+        let drawWidth, drawHeight;
+
+        // Scale to cover the target dimensions while maintaining aspect ratio
+        if (sourceAspect > targetAspect) {
+            // Source is wider - fit to height
+            scaleHeight = targetHeight;
+            scaleWidth = sourceWidth * (targetHeight / sourceHeight);
+            sourceX = (scaleWidth - targetWidth) / 2;
+            drawWidth = scaleWidth;
+            drawHeight = scaleHeight;
+        } else {
+            // Source is taller or equal - fit to width
+            scaleWidth = targetWidth;
+            scaleHeight = sourceHeight * (targetWidth / sourceWidth);
+            sourceY = (scaleHeight - targetHeight) / 2;
+            drawWidth = scaleWidth;
+            drawHeight = scaleHeight;
+        }
+
+        // Create a temporary canvas for the resized image
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = drawWidth;
+        tempCanvas.height = drawHeight;
+        const tempCtx = tempCanvas.getContext('2d');
+
+        // Draw the scaled image to temp canvas
+        tempCtx.drawImage(
+            sourceCanvas,
+            0, 0, sourceWidth, sourceHeight,
+            0, 0, drawWidth, drawHeight
+        );
+
+        // Draw the cropped portion from temp canvas to final canvas
+        ctx.drawImage(
+            tempCanvas,
+            sourceX, sourceY, targetWidth, targetHeight,  // Source rectangle (crop from center)
+            0, 0, targetWidth, targetHeight               // Destination rectangle
+        );
     }
 
     /**

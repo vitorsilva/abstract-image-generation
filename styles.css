@@ -146,6 +146,55 @@ h2 {
     font-size: 0.9em;
 }
 
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.radio-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.radio-option:hover {
+    border-color: #667eea;
+    background: #f5f7ff;
+}
+
+.radio-option input[type="radio"] {
+    margin-top: 3px;
+    cursor: pointer;
+}
+
+.radio-option span {
+    font-weight: 500;
+    color: #333;
+}
+
+.radio-option small {
+    display: block;
+    color: #666;
+    font-size: 0.85em;
+    margin-top: 3px;
+}
+
+.radio-option:has(input:checked) {
+    border-color: #667eea;
+    background: #f5f7ff;
+}
+
+.parameters-section h3:not(:first-child) {
+    margin-top: 20px;
+}
+
 .generate-btn {
     margin-top: 20px;
     padding: 15px 40px;
