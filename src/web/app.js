@@ -1,0 +1,356 @@
+/**
+ * Main Application Logic
+ * Handles UI interactions and orchestrates the image generation process
+ */
+
+class App {
+    constructor() {
+        this.currentSketch = null;
+        this.sketches = {};
+        this.metrics = null;
+        this.visualParams = null;
+
+        this.initEventListeners();
+    }
+
+    /**
+     * Initialize event listeners
+     */
+    initEventListeners() {
+        // Input mode toggle
+        document.getElementById('pasteBtn').addEventListener('click', () => {
+            this.switchInputMode('paste');
+        });
+
+        document.getElementById('uploadBtn').addEventListener('click', () => {
+            this.switchInputMode('upload');
+        });
+
+        // File input
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            this.handleFileUpload(e);
+        });
+
+        // Generate button
+        document.getElementById('generateBtn').addEventListener('click', () => {
+            this.generateImages();
+        });
+
+        // Download buttons
+        document.querySelectorAll('.download-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                this.downloadImage(e.target.dataset.format);
+            });
+        });
+    }
+
+    /**
+     * Switch between paste and upload input modes
+     */
+    switchInputMode(mode) {
+        const pasteBtn = document.getElementById('pasteBtn');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const textArea = document.getElementById('contentInput');
+        const fileInput = document.getElementById('fileInput');
+
+        if (mode === 'paste') {
+            pasteBtn.classList.add('active');
+            uploadBtn.classList.remove('active');
+            textArea.style.display = 'block';
+            fileInput.style.display = 'none';
+        } else {
+            uploadBtn.classList.add('active');
+            pasteBtn.classList.remove('active');
+            textArea.style.display = 'none';
+            fileInput.style.display = 'block';
+            fileInput.click();
+        }
+    }
+
+    /**
+     * Handle file upload
+     */
+    async handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        try {
+            const text = await file.text();
+            document.getElementById('contentInput').value = text;
+            this.switchInputMode('paste');
+        } catch (error) {
+            console.error('Error reading file:', error);
+            alert('Error reading file. Please try again.');
+        }
+    }
+
+    /**
+     * Generate images from content
+     */
+    generateImages() {
+        const content = document.getElementById('contentInput').value.trim();
+
+        if (!content) {
+            alert('Please enter some content first!');
+            return;
+        }
+
+        // Clean up previous sketches
+        this.cleanupSketches();
+
+        // Analyze content
+        const analyzer = new ContentAnalyzer(content);
+        this.metrics = analyzer.analyze();
+
+        // Generate visual parameters
+        const seedGen = new SeedGenerator(this.metrics);
+        this.visualParams = seedGen.generateVisualParams();
+
+        // Get user-defined stroke parameters
+        const minStroke = parseFloat(document.getElementById('minStroke').value) || 0.5;
+        const maxStroke = parseFloat(document.getElementById('maxStroke').value) || 1.5;
+
+        // Add stroke parameters to visual params
+        this.visualParams.minStroke = minStroke;
+        this.visualParams.maxStroke = maxStroke;
+
+        // Display metrics
+        this.displayMetrics();
+
+        // Generate master image at maximum size (1200×1200)
+        // Then crop it to different formats
+        this.generateMasterImage();
+
+        // Show output section
+        document.getElementById('outputSection').style.display = 'block';
+
+        // Scroll to output
+        document.getElementById('outputSection').scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+    }
+
+    /**
+     * Display content metrics
+     */
+    displayMetrics() {
+        const metricsDisplay = document.getElementById('metricsDisplay');
+
+        metricsDisplay.innerHTML = `
+            <div class="metric-item">
+                <div class="metric-value">${this.metrics.wordCount}</div>
+                <div class="metric-label">Words</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-value">${this.metrics.paragraphCount}</div>
+                <div class="metric-label">Paragraphs</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-value">${this.metrics.characters}</div>
+                <div class="metric-label">Characters</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-value">${this.metrics.avgWordLength}</div>
+                <div class="metric-label">Avg Word Length</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-value">${this.metrics.readingTime} min</div>
+                <div class="metric-label">Reading Time</div>
+            </div>
+        `;
+    }
+
+    /**
+     * Generate master image and create cropped versions
+     */
+    generateMasterImage() {
+        // Create a temporary container for the master image
+        const tempContainer = document.createElement('div');
+        tempContainer.style.display = 'none';
+        document.body.appendChild(tempContainer);
+
+        // Generate master image at maximum size (1200×1200)
+        const visualGen = new VisualGenerator(this.visualParams, 1200, 1200);
+        this.sketches.master = visualGen.generate(p5, tempContainer);
+
+        // Wait for the sketch to finish drawing
+        // p5 noLoop() means it draws once, so we can access it immediately
+        // But we'll use a small timeout to be safe
+        setTimeout(() => {
+            this.createCroppedVersions();
+            // Clean up temp container
+            document.body.removeChild(tempContainer);
+        }, 100);
+    }
+
+    /**
+     * Create cropped versions from master image
+     */
+    createCroppedVersions() {
+        const masterCanvas = this.sketches.master.canvas;
+
+        // Get selected crop mode
+        const cropMode = document.querySelector('input[name="cropMode"]:checked').value;
+
+        // Create landscape version (1200×628)
+        this.createCroppedCanvas(
+            masterCanvas,
+            'canvas-landscape',
+            1200,
+            628,
+            'landscape',
+            cropMode
+        );
+
+        // Create square version (1200×1200) - use full image
+        this.createCroppedCanvas(
+            masterCanvas,
+            'canvas-square',
+            1200,
+            1200,
+            'square',
+            cropMode
+        );
+    }
+
+    /**
+     * Create a cropped canvas from master image
+     */
+    createCroppedCanvas(sourceCanvas, containerId, width, height, formatName, cropMode = 'direct') {
+        const container = document.getElementById(containerId);
+        container.innerHTML = ''; // Clear previous canvas
+
+        // Create new canvas for the cropped version
+        const croppedCanvas = document.createElement('canvas');
+        croppedCanvas.width = width;
+        croppedCanvas.height = height;
+
+        const ctx = croppedCanvas.getContext('2d');
+
+        if (cropMode === 'resize') {
+            // Resize + Crop mode: Scale to fit target aspect ratio, then crop
+            this.resizeAndCrop(ctx, sourceCanvas, width, height);
+        } else {
+            // Direct Crop mode: Crop directly from top-left (faster, current behavior)
+            ctx.drawImage(
+                sourceCanvas,
+                0, 0, width, height,  // Source rectangle (crop from top-left)
+                0, 0, width, height   // Destination rectangle
+            );
+        }
+
+        // Add to container
+        container.appendChild(croppedCanvas);
+
+        // Store reference for download
+        this.sketches[formatName] = {
+            canvas: croppedCanvas
+        };
+    }
+
+    /**
+     * Resize and crop image to fit target dimensions
+     * Scales the source to cover the target while maintaining aspect ratio,
+     * then crops from center
+     */
+    resizeAndCrop(ctx, sourceCanvas, targetWidth, targetHeight) {
+        const sourceWidth = sourceCanvas.width;
+        const sourceHeight = sourceCanvas.height;
+
+        // Calculate aspect ratios
+        const sourceAspect = sourceWidth / sourceHeight;
+        const targetAspect = targetWidth / targetHeight;
+
+        let scaleWidth, scaleHeight;
+        let sourceX = 0, sourceY = 0;
+        let drawWidth, drawHeight;
+
+        // Scale to cover the target dimensions while maintaining aspect ratio
+        if (sourceAspect > targetAspect) {
+            // Source is wider - fit to height
+            scaleHeight = targetHeight;
+            scaleWidth = sourceWidth * (targetHeight / sourceHeight);
+            sourceX = (scaleWidth - targetWidth) / 2;
+            drawWidth = scaleWidth;
+            drawHeight = scaleHeight;
+        } else {
+            // Source is taller or equal - fit to width
+            scaleWidth = targetWidth;
+            scaleHeight = sourceHeight * (targetWidth / sourceWidth);
+            sourceY = (scaleHeight - targetHeight) / 2;
+            drawWidth = scaleWidth;
+            drawHeight = scaleHeight;
+        }
+
+        // Create a temporary canvas for the resized image
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = drawWidth;
+        tempCanvas.height = drawHeight;
+        const tempCtx = tempCanvas.getContext('2d');
+
+        // Draw the scaled image to temp canvas
+        tempCtx.drawImage(
+            sourceCanvas,
+            0, 0, sourceWidth, sourceHeight,
+            0, 0, drawWidth, drawHeight
+        );
+
+        // Draw the cropped portion from temp canvas to final canvas
+        ctx.drawImage(
+            tempCanvas,
+            sourceX, sourceY, targetWidth, targetHeight,  // Source rectangle (crop from center)
+            0, 0, targetWidth, targetHeight               // Destination rectangle
+        );
+    }
+
+    /**
+     * Download image
+     */
+    downloadImage(format) {
+        const sketch = this.sketches[format];
+        if (!sketch) {
+            alert('Image not generated yet!');
+            return;
+        }
+
+        // Get the canvas
+        const canvas = sketch.canvas;
+
+        // Create filename from first few words of content
+        const words = this.metrics.words.slice(0, 3).join('-');
+        const filename = `abstract-${words}-${format}.png`;
+
+        // Create download link
+        canvas.toBlob((blob) => {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = url;
+            link.click();
+            URL.revokeObjectURL(url);
+        }, 'image/png');
+    }
+
+    /**
+     * Clean up previous p5 sketches
+     */
+    cleanupSketches() {
+        // Remove p5 sketches (master sketch has a remove method)
+        Object.values(this.sketches).forEach(sketch => {
+            if (sketch && sketch.remove) {
+                sketch.remove();
+            }
+        });
+        this.sketches = {};
+
+        // Clear containers
+        document.getElementById('canvas-landscape').innerHTML = '';
+        document.getElementById('canvas-square').innerHTML = '';
+    }
+}
+
+// Initialize app when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    new App();
+});

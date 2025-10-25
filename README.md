@@ -2,6 +2,10 @@
 
 Transform your blog content into beautiful, organic abstract images perfect for social media and blog headers.
 
+**Two Ways to Use:**
+- 🌐 **Web Interface**: Interactive browser-based generator
+- ⚡ **CLI Tool**: Automated batch generation from WordPress, files, or directories
+
 ## Features
 
 - **Deterministic Generation**: Same content always produces the same image
@@ -29,27 +33,54 @@ Transform your blog content into beautiful, organic abstract images perfect for 
 
 ### Prerequisites
 
-- Node.js (for running the development server)
-- A modern web browser
+- Node.js (for running the development server or CLI)
+- A modern web browser (for web interface)
 
 ### Installation
 
 ```bash
 # Install dependencies
 npm install
+```
 
+## Usage
+
+### 🌐 Web Interface
+
+```bash
 # Start the development server
 npm start
 ```
 
 The application will open in your browser at `http://localhost:8080`
 
-## Usage
-
 1. **Enter Content**: Either paste your blog post text or upload an HTML/TXT file
 2. **Generate**: Click "Generate Images" button
 3. **Review**: View the generated images in both landscape and square formats
 4. **Download**: Click download buttons to save images to your device
+
+### ⚡ CLI Tool
+
+**Quick Start:**
+```bash
+# Generate from WordPress post
+.\gen.bat --source wordpress --url https://osmeusapontamentos.com --id 26136
+
+# Generate from local file
+.\gen.bat --source file --path article.txt --all
+
+# Generate from directory
+.\gen.bat --source directory --path ./posts/ --all
+```
+
+**📖 Full CLI Documentation:** See [CLI-README.md](CLI-README.md) for complete documentation.
+
+**Features:**
+- Generate images for all your WordPress posts at once
+- Process local files and directories
+- Batch processing with error handling
+- Configurable output and logging
+- Multiple content sources (WordPress REST API, files, directories)
 
 ## Project Structure
 
@@ -57,11 +88,26 @@ The application will open in your browser at `http://localhost:8080`
 abstract-image-generator/
 ├── index.html                 # Main web interface
 ├── styles.css                 # Application styling
+├── gen.bat                    # CLI wrapper for Windows
+├── config.json                # CLI configuration
+├── CLI-README.md              # CLI documentation
 ├── src/
-│   ├── contentAnalyzer.js    # Extracts metrics from text
-│   ├── seedGenerator.js      # Creates deterministic seeds and visual parameters
-│   ├── visualGenerator.js    # p5.js generative art engine
-│   └── app.js                # Main application logic
+│   ├── core/                  # Shared code (web + CLI)
+│   │   ├── contentAnalyzer.js    # Extracts metrics from text
+│   │   ├── seedGenerator.js      # Creates deterministic seeds
+│   │   ├── visualGenerator.js    # p5.js generative art (web)
+│   │   └── visualGeneratorNode.js # node-canvas version (CLI)
+│   ├── web/
+│   │   └── app.js                # Web application logic
+│   └── cli/                      # CLI-specific code
+│       ├── cli.js                # Main CLI interface
+│       ├── imageGenerator.js     # Image generation orchestrator
+│       ├── logger.js             # Logging utility
+│       └── contentProviders/     # Pluggable content sources
+│           ├── baseProvider.js      # Provider interface
+│           ├── fileProvider.js      # Single file source
+│           ├── directoryProvider.js # Directory source
+│           └── wordpressProvider.js # WordPress REST API
 └── package.json              # Project dependencies
 ```
 
@@ -81,22 +127,30 @@ The generator includes 10 carefully curated color palettes:
 
 The palette is deterministically selected based on your content hash.
 
-## Future Enhancements (v2)
+## Future Enhancements
 
 - Semantic text analysis using NLP
 - Theme and mood detection
-- Manual parameter controls for fine-tuning
-- CLI version for automation
-- Additional visual styles
+- Manual parameter controls for fine-tuning in web UI
+- Additional visual styles (geometric, data-viz)
 - Custom color palette upload
-- Batch processing
+- Direct upload to WordPress media library from CLI
+- Portrait format (1200×1500px)
+- Progress bars for CLI batch operations
 
 ## Technology Stack
 
+**Web Interface:**
 - **p5.js**: Canvas rendering and generative art
 - **Vanilla JavaScript**: No framework overhead
 - **HTML5/CSS3**: Modern web interface
 - **http-server**: Development server
+
+**CLI:**
+- **node-canvas**: Server-side canvas rendering
+- **commander**: CLI argument parsing
+- **jsdom**: HTML parsing for content extraction
+- **marked**: Markdown to HTML conversion
 
 ## License
 

@@ -1,0 +1,37 @@
+{
+  "contentSource": {
+    "type": "wordpress",
+
+    "wordpress": {
+      "siteUrl": "https://osmeusapontamentos.com",
+      "postsPerBatch": 10
+    },
+
+    "file": {
+      "path": "./content/my-post.txt"
+    },
+
+    "directory": {
+      "path": "./content/posts/",
+      "extensions": [".txt", ".html", ".md"],
+      "recursive": false
+    }
+  },
+
+  "generation": {
+    "cropMode": "direct",
+    "minStroke": 0.5,
+    "maxStroke": 1.5,
+    "formats": ["landscape", "square"]
+  },
+
+  "output": {
+    "directory": "./generated-images",
+    "filenamePattern": "{id}-{format}.png"
+  },
+
+  "logging": {
+    "logFile": "./generation.log",
+    "logLevel": "info"
+  }
+}

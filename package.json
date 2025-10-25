@@ -4,7 +4,11 @@
   "description": "Generate abstract images from blog post content for social media",
   "main": "index.html",
   "scripts": {
-    "start": "npx http-server -p 8080 -o"
+    "start": "npx http-server -p 8080 -o",
+    "cli": "node src/cli/cli.js",
+    "gen": "node src/cli/cli.js generate",
+    "list": "node src/cli/cli.js list",
+    "config": "node src/cli/cli.js config"
   },
   "keywords": [
     "generative-art",
@@ -16,5 +20,11 @@
   "license": "MIT",
   "devDependencies": {
     "http-server": "^14.1.1"
+  },
+  "dependencies": {
+    "canvas": "^3.2.0",
+    "commander": "^14.0.2",
+    "jsdom": "^27.0.1",
+    "marked": "^16.4.1"
   }
 }

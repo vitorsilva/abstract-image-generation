@@ -3,7 +3,10 @@
     "allow": [
       "WebSearch",
       "Bash(npm install:*)",
-      "Bash(npm start)"
+      "Bash(npm start)",
+      "WebFetch(domain:osmeusapontamentos.com)",
+      "Bash(node src/cli/cli.js:*)",
+      "Bash(npm run gen:*)"
     ],
     "deny": [],
     "ask": []

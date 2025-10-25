@@ -1,0 +1,21 @@
+Tools Matter: The Importance of Proper Setup
+
+If you've ever tried to cut a tree with a dull axe, you know the frustration. The same principle applies to software development. Tools matter, and it's unfortunate that it often sucks to install and setup these tools properly.
+
+I've always believed in the old saying: if I have 1 hour to cut a tree, then I'll spend 45 minutes sharpening my axe. This wisdom applies perfectly to our development workflow.
+
+Setting Up Your Environment
+
+When you're setting up your development environment, resist the urge to rush through it. Take your time to understand each tool, configure it properly, and ensure everything works together smoothly.
+
+Many developers skip this crucial step and end up frustrated later when things don't work as expected. The initial time investment in proper setup pays dividends throughout your entire project lifecycle.
+
+The Right Approach
+
+Using Claude AI or other assistants to guide you through tooling setup can be incredibly valuable. Rather than having everything automated, you can ask clarification questions, understand what each configuration does, and learn hands-on.
+
+This approach gives you the knowledge you need to troubleshoot issues later and customize your setup to match your specific needs and preferences.
+
+Conclusion
+
+Remember: sharp tools make the work easier. Invest in your setup, and you'll reap the benefits every single day you code.
