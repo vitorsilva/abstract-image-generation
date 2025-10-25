@@ -166,7 +166,11 @@ class VisualGenerator {
             for (let i = 0; i < 3; i++) {
                 const color = accentColors[i % accentColors.length];
                 p.stroke(color); // Opaque curves
-                p.strokeWeight(0.5 + this.params.complexity * 1); // Thinner lines: 0.5 to 1.5px
+
+                // Use user-defined stroke parameters (defaults: 0.5 to 1.5px)
+                const minStroke = this.params.minStroke || 0.5;
+                const maxStroke = this.params.maxStroke || 1.5;
+                p.strokeWeight(minStroke + this.params.complexity * (maxStroke - minStroke));
                 p.noFill();
 
                 this.drawFlowingCurve(p, noiseScale, i + layer * 10);

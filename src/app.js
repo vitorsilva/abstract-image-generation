@@ -106,6 +106,14 @@ class App {
         const seedGen = new SeedGenerator(this.metrics);
         this.visualParams = seedGen.generateVisualParams();
 
+        // Get user-defined stroke parameters
+        const minStroke = parseFloat(document.getElementById('minStroke').value) || 0.5;
+        const maxStroke = parseFloat(document.getElementById('maxStroke').value) || 1.5;
+
+        // Add stroke parameters to visual params
+        this.visualParams.minStroke = minStroke;
+        this.visualParams.maxStroke = maxStroke;
+
         // Display metrics
         this.displayMetrics();
 
