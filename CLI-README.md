@@ -2,6 +2,10 @@
 
 Command-line interface for generating abstract images from blog content.
 
+**🎨 [Try Web Version](https://osmeusapontamentos.com/abstract-generator/)** - No installation needed for one-off generations!
+
+This CLI is perfect for batch processing and automation. For interactive use, try the web interface.
+
 ## Features
 
 - **Multiple Content Sources**: WordPress REST API, local files, or directories

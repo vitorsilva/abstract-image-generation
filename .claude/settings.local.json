@@ -6,7 +6,8 @@
       "Bash(npm start)",
       "WebFetch(domain:osmeusapontamentos.com)",
       "Bash(node src/cli/cli.js:*)",
-      "Bash(npm run gen:*)"
+      "Bash(npm run gen:*)",
+      "Bash(powershell Compress-Archive -Path * -DestinationPath ../abstract-generator-web.zip -Force)"
     ],
     "deny": [],
     "ask": []

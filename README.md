@@ -2,6 +2,8 @@
 
 Transform your blog content into beautiful, organic abstract images perfect for social media and blog headers.
 
+**🎨 [Try Live Demo](https://osmeusapontamentos.com/abstract-generator/)**
+
 **Two Ways to Use:**
 - 🌐 **Web Interface**: Interactive browser-based generator
 - ⚡ **CLI Tool**: Automated batch generation from WordPress, files, or directories
@@ -14,8 +16,10 @@ Transform your blog content into beautiful, organic abstract images perfect for 
   - Landscape: 1200×628px (Twitter/LinkedIn/Blog)
   - Square: 1200×1200px (Instagram/General)
 - **Content-Driven**: Visual parameters are derived from your text metrics
-- **Simple Interface**: Paste text or upload files (HTML, TXT)
+- **Flexible Input**: Paste text, upload files (HTML, TXT), or load directly from WordPress URLs
+- **Two Crop Modes**: Direct crop (faster) or resize & crop (better composition fit)
 - **One-Click Download**: Save images directly to your device
+- **WordPress Integration**: Load posts directly by URL from any WordPress site with REST API
 
 ## How It Works
 
@@ -47,6 +51,9 @@ npm install
 
 ### 🌐 Web Interface
 
+**🎨 [Try Online Demo](https://osmeusapontamentos.com/abstract-generator/)** - No installation needed!
+
+Or run locally:
 ```bash
 # Start the development server
 npm start
@@ -54,7 +61,8 @@ npm start
 
 The application will open in your browser at `http://localhost:8080`
 
-1. **Enter Content**: Either paste your blog post text or upload an HTML/TXT file
+**How to Use:**
+1. **Enter Content**: Either paste your blog post text, upload an HTML/TXT file, or load from WordPress URL
 2. **Generate**: Click "Generate Images" button
 3. **Review**: View the generated images in both landscape and square formats
 4. **Download**: Click download buttons to save images to your device

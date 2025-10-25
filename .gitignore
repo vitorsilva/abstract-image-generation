@@ -23,3 +23,6 @@ build/
 # CLI Generated images and logs
 generated-images/
 generation.log
+
+# Deployment folder
+deploy/
