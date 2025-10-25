@@ -232,17 +232,36 @@ class App {
     }
 
     /**
-     * Strip HTML tags from content
+     * Strip HTML tags from content while preserving paragraph structure
      */
     stripHtml(html) {
         const temp = document.createElement('div');
         temp.innerHTML = html;
 
+        // Replace block elements with newlines before getting text
+        const blockElements = temp.querySelectorAll('p, div, br, h1, h2, h3, h4, h5, h6, li, tr');
+        blockElements.forEach(el => {
+            if (el.tagName === 'BR') {
+                el.replaceWith('\n');
+            } else {
+                // Add double newline after block elements to create paragraph separation
+                const text = el.textContent || '';
+                if (text.trim()) {
+                    el.replaceWith(text + '\n\n');
+                }
+            }
+        });
+
         // Get text content
         let text = temp.textContent || temp.innerText || '';
 
-        // Clean up whitespace
-        text = text.replace(/\s+/g, ' ').trim();
+        // Clean up excessive whitespace while preserving paragraph breaks
+        text = text
+            .replace(/[ \t]+/g, ' ')           // Multiple spaces/tabs → single space
+            .replace(/\n\n\n+/g, '\n\n')       // Multiple blank lines → double newline
+            .replace(/\n /g, '\n')             // Remove spaces at start of lines
+            .replace(/ \n/g, '\n')             // Remove spaces at end of lines
+            .trim();
 
         return text;
     }
