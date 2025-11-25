@@ -26,3 +26,4 @@ generation.log
 
 # Deployment folder
 deploy/
+.vs/

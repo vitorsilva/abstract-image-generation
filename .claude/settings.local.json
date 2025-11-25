@@ -1,13 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "WebSearch",
-      "Bash(npm install:*)",
-      "Bash(npm start)",
-      "WebFetch(domain:osmeusapontamentos.com)",
       "Bash(node src/cli/cli.js:*)",
-      "Bash(npm run gen:*)",
-      "Bash(powershell Compress-Archive -Path * -DestinationPath ../abstract-generator-web.zip -Force)"
+      "Bash(dir:*)",
+      "Bash(test.bat)",
+      "Bash(cmd /c test.bat)",
+      "Bash(cmd //c:*)"
     ],
     "deny": [],
     "ask": []
